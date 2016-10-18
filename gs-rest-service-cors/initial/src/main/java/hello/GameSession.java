@@ -42,6 +42,32 @@ public class GameSession {
 			if(legalMove) {
 				Player winner = getWinner();
 				if(winner != null || gameGrid.isEntireGridFilled()) {
+					// update statistics for both players
+					Player player1 = players.get(Sign.X);
+					Player player2 = players.get(Sign.O);
+					if(winner != null) {
+						// someone won the game
+						winner.getStat().addWin(1);
+						if(player1 != winner) {
+							player1.getStat().addLoss(1);
+						}	else {
+							player2.getStat().addLoss(1);
+						}
+					} else {
+						// it is a draw
+						player1.getStat().addDraw(1);
+						player2.getStat().addDraw(1);
+					}
+					
+					// printing statistics:
+					System.out.println(player1.getName() + " wins: " + player1.getStat().getWins() + 
+														" losses: " + player1.getStat().getLosses() + 
+														" draws: " + player1.getStat().getDraws());
+
+					System.out.println(player2.getName() + " wins: " + player2.getStat().getWins() + 
+														" losses: " + player2.getStat().getLosses() + 
+														" draws: " + player2.getStat().getDraws());
+
 					return new PlayResponse(PlayResponse.OK);
 				}
 
@@ -55,9 +81,7 @@ public class GameSession {
 					ComputerPlayer computerPlayer = (ComputerPlayer)nextPlayer;
 					computerPlayer.playMove(gameGrid, currentSign);
 					advanceToNextPlayer();
-				} else {
-					System.out.println("Next player is not a computer");
-				}
+				}				
 				return new PlayResponse(PlayResponse.OK);
 			} else {
 				return new PlayResponse(PlayResponse.ILEGAL_MOVE);

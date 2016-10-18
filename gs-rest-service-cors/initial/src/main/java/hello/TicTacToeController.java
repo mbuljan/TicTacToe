@@ -14,7 +14,14 @@ import java.io.File;
 public class TicTacToeController {    
     private HashMap<Integer, GameSession> gameSessions = new HashMap<Integer, GameSession>();
 		private HashMap<String, Player> players = new HashMap<String, Player>();		
-	
+		
+		public TicTacToeController() {
+			Player computerHard = new ComputerPlayerHard();
+			Player computerEasy = new ComputerPlayerEasy();
+			players.put(computerHard.getName(), computerHard);
+			players.put(computerEasy.getName(), computerEasy);
+		}
+
 		@CrossOrigin(origins = "http://localhost:8080")
 		@RequestMapping("*")
 		public String index() {
@@ -37,27 +44,52 @@ public class TicTacToeController {
                                     @RequestParam(value="second", defaultValue="computer") String second) {
 				// checking if players were already used in a game
 				System.out.println("first: " + first + ", " + "second: " + second);
-				System.out.println(first + " started a game...");
-				Player player1 = players.get(first);
-				Player player2 = players.get(second);
-				if(player1 == null) {
-					if(!first.equals( "computer")) {
-						player1 = new HumanPlayer(first);
-					} else {
-						player1 = new ComputerPlayerHard();
+				Player player1 = null;
+				Player player2 = null;
+				Player humanPlayer = null;
+				if(first.equals("computer")) {
+					if(!second.equals("computer")) {
+						// first player is computer, second is human
+						humanPlayer = players.get(second);
+						if(humanPlayer != null) {
+							player2 = humanPlayer;
+						} else {
+							player2 = new HumanPlayer(second);
+							players.put(second, player2);
+							humanPlayer = player2;
+						}
 					}
-					players.put(player1.getName(), player1);
+				} else if(!first.equals("computer")) {
+					if(second.equals("computer")) {
+						// first player is a human, second is a computer
+						humanPlayer = players.get(first);
+						if(humanPlayer != null) {
+							player1 = players.get(first);
+						} else {
+							player1 = new HumanPlayer(first);
+							players.put(first, player1);
+							humanPlayer = player1;
+						}
+					}	
+				} else {
+					return new NewGameResponse(-1);
+				}
+		
+				float winPercentage = humanPlayer.getStat().getWinPercentage();
+				if(winPercentage <= 30.0) {
+					if(player1 == null) {
+						player1 = players.get("computer_easy");
+					} else if(player2 == null) {
+						player2 = players.get("computer_easy");
+					}
+				} else {
+					if(player1 == null) {
+						player1 = players.get("computer_hard");
+					} else if(player2 == null) {
+						player2 = players.get("computer_hard");
+					}
 				}
 
-				if(player2 == null) {
-					if(!second.equals("computer")) {
-						player2 = new HumanPlayer(second);
-					} else {
-						player2 = new ComputerPlayerHard();
-					}
-					players.put(player2.getName(), player2);
-				}
-				
 				GameSession gameSession = new GameSession(player1, player2);
         int gameId = gameSession.getId();
         gameSessions.put(gameId, gameSession);
@@ -97,8 +129,9 @@ public class TicTacToeController {
 				Stat playerStat = player.getStat();
 				statsArray.add(playerStat);
 			}
-			
-			return new StatisticsResponse((Stat[])statsArray.toArray());
+			Stat[] stats = new Stat[statsArray.size()];
+			stats = statsArray.toArray(stats);
+			return new StatisticsResponse(stats);
    	}
 }
 

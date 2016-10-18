@@ -25,4 +25,12 @@ public class Stat {
 	public int getWins() {return wins;}
 	public int getLosses() {return losses;}
 	public int getDraws() {return draws;}
+	
+	public float getWinPercentage() {
+		if(wins == 0 && losses == 0 && draws == 0)
+			return 0.0f;
+
+		return (wins / (wins + losses + draws)) * 100.0f;	
+	}
 }
+
