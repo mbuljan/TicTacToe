@@ -134,8 +134,7 @@ public abstract class ComputerPlayer extends Player{
 	}
 
 	protected int[] playRandomMove(Sign sign, GameGrid gameGrid) {
-		ArrayList<int[]> signCoordinates = collectCoordinatesOfSign(sign, gameGrid);	
-		
+		ArrayList<int[]> signCoordinates = collectCoordinatesOfSign(Sign.UNDEFINED, gameGrid);		
 		if(signCoordinates.size() == 0) {
 			return new int[0];
 		}
@@ -144,7 +143,6 @@ public abstract class ComputerPlayer extends Player{
 		int randomElementIndex = random.nextInt(signCoordinates.size());
 		
 		return signCoordinates.get(randomElementIndex);
-
 	}
 
 	private ArrayList<int[]> collectCoordinatesOfSign(Sign sign, GameGrid gameGrid) {

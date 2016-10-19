@@ -5,14 +5,22 @@
 			var gameId = -1;
 			var scope = null;
 			var http = null;
-			
+				
+					
 			// initial setup, all grid empty
 			angular.module('myApp', []).controller('myCtrl', function($scope, $http) {
 				scope = $scope;
 				http = $http;
     		$scope.gameGrid = "";
-				$scope.infoMessage = "Hello";
-				newGame("marko", "");
+				$scope.infoMessage = "";
+				$scope.newGame = function newGame(first, second) {
+					if(first == undefined) first = "";
+					if(second == undefined) second = "";
+					http.get('http://localhost:8080/new?first=' + first + '&' + 'second=' + second).then(function(response) {
+						gameId = response.data.gameId;
+						getStatus();					
+					});
+				}
 			});		
 
 			function getStatus() {
@@ -38,45 +46,45 @@
 			}
 
 			function playMove(row, col) {
-    				http.get('http://localhost:8080/play?gameId=' + gameId + '&row=' + row + '&column=' + col).then(function(playResponse) {
-							if(playResponse.data.status == 0){ // OK status  	
-								getStatus();								
-							} else if(statusResponse.data.status == 412) { // illegal move
-									scope.infoMessage = "Illegal move, try an empty grid slot.";
-							} else if(statusResponse.data.status == 1) { // wrong game id
-									scope.infoMessage = "Something is wrong, this is not your game";
-							}
-					});
-			}
-
-			function newGame(first, second) {
-    			http.get('http://localhost:8080/new?first=' + first + '&' + 'second=' + second).then(function(response) {
-						gameId = response.data.gameId;
-						getStatus();					
-					});
+    		http.get('http://localhost:8080/play?gameId=' + gameId + '&row=' + row + '&column=' + col).then(function(playResponse) {
+					if(playResponse.data.status == 0){ // OK status  	
+						getStatus();								
+					} else if(playResponse.data.status == 412) { // illegal move
+							scope.infoMessage = "Illegal move, try an empty grid slot or the game is finished.";
+					} else if(playResponse.data.status == 1) { // wrong game id
+							scope.infoMessage = "Something is wrong, this is not your game";
+					}
+				});
 			}
 		</script>	
 	</head>
 	<body ng-app="myApp">
-		<p>{{infoMessage}}</p>
 			<div ng-controller="myCtrl">
-					<table style="width:300px;height:300px;">
-  				<tr> 
-    				<td><button style="width:75px;height:75px;" onclick="playMove(0, 0)">{{grid00}}</button></td>
-    				<td><button style="width:75px;height:75px;" onclick="playMove(0, 1)">{{grid01}}</button></td> 
-    				<td><button style="width:75px;height:75px;" onclick="playMove(0, 2)">{{grid02}}</button></td>
-  				</tr>
-  				<tr>
-    				<td><button style="width:75px;height:75px;" onclick="playMove(1, 0)">{{grid10}}</button></td>
-						<td><button style="width:75px;height:75px;" onclick="playMove(1, 1)">{{grid11}}</button></td>
-						<td><button style="width:75px;height:75px;" onclick="playMove(1, 2)">{{grid12}}</button></td>
-  				</tr>
-  				<tr>
-						<td><button style="width:75px;height:75px;" onclick="playMove(2, 0)">{{grid20}}</button></td>
-						<td><button style="width:75px;height:75px;" onclick="playMove(2, 1)">{{grid21}}</button></td>
-						<td><button style="width:75px;height:75px;" onclick="playMove(2, 2)">{{grid22}}</button></td>
-  				</tr>
-					</table>
+				<p>{{infoMessage}}</p>
+				
+				<form>
+  				Player 1 name: <input type="text" ng-model="players.p1Name"/> <br/>
+					Player 2 name: <input type="text" ng-model="players.p2Name"/> <br/>
+  				<button ng-click="newGame(players.p1Name, players.p2Name)">Change players</button>
+				</form>
+
+				<table style="width:300px;height:300px;">
+  			<tr> 
+    			<td><button style="width:75px;height:75px;" onclick="playMove(0, 0)">{{grid00}}</button></td>
+    			<td><button style="width:75px;height:75px;" onclick="playMove(0, 1)">{{grid01}}</button></td> 
+    			<td><button style="width:75px;height:75px;" onclick="playMove(0, 2)">{{grid02}}</button></td>
+  			</tr>
+  			<tr>
+    			<td><button style="width:75px;height:75px;" onclick="playMove(1, 0)">{{grid10}}</button></td>
+					<td><button style="width:75px;height:75px;" onclick="playMove(1, 1)">{{grid11}}</button></td>
+					<td><button style="width:75px;height:75px;" onclick="playMove(1, 2)">{{grid12}}</button></td>
+  			</tr>
+  			<tr>
+					<td><button style="width:75px;height:75px;" onclick="playMove(2, 0)">{{grid20}}</button></td>
+					<td><button style="width:75px;height:75px;" onclick="playMove(2, 1)">{{grid21}}</button></td>
+					<td><button style="width:75px;height:75px;" onclick="playMove(2, 2)">{{grid22}}</button></td>
+  			</tr>
+				</table>
 			</div>
 	</body>
 </html>

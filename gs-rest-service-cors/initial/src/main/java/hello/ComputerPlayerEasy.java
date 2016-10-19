@@ -26,9 +26,12 @@ public class ComputerPlayerEasy extends ComputerPlayer {
       int[] opponentWinningCoordinates = checkWinningMove(opponentSign, gameGrid);
       if(opponentWinningCoordinates.length == 2) {
         // if he does, block his victory move by playing that move
-        gameGrid.setGridElement(opponentWinningCoordinates[0], 
+        boolean success = gameGrid.setGridElement(opponentWinningCoordinates[0], 
                                 opponentWinningCoordinates[1], 
                                 sign);
+				if(!success) {
+					System.out.println("failed to set game grid element");
+				}
         return;
       }
     }
@@ -36,14 +39,22 @@ public class ComputerPlayerEasy extends ComputerPlayer {
 		// trying to play a move in a way so that my signs on the grid are alligned
     int[] pickedElement = checkAlignedMove(sign, gameGrid);
     if(pickedElement.length == 2) {
-      gameGrid.setGridElement(pickedElement[0], pickedElement[1], mySign);
+      boolean success = gameGrid.setGridElement(pickedElement[0], pickedElement[1], mySign);
+			if(!success) {
+					System.out.println("failed to set game grid element");
+			}
       return;
     }
 
     // last resort, if no smart moves can be played, place the sign wherever on the grid
     int[] randomElement = playRandomMove(sign, gameGrid);
     if(randomElement.length == 2) {
-      gameGrid.setGridElement(randomElement[0], randomElement[1], mySign);
-    }
+      boolean success = gameGrid.setGridElement(randomElement[0], randomElement[1], mySign);
+			if(!success) {
+					System.out.println("failed to set game grid element");
+			}
+    } else {
+			System.out.println("failed to play a random move");
+		}
 	} 
 }

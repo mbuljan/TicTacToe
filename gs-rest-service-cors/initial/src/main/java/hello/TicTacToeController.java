@@ -42,51 +42,59 @@ public class TicTacToeController {
 		@RequestMapping("/new")
     public NewGameResponse newGame(@RequestParam(value="first", defaultValue="computer") String first, 
                                     @RequestParam(value="second", defaultValue="computer") String second) {
-				// checking if players were already used in a game
-				System.out.println("first: " + first + ", " + "second: " + second);
 				Player player1 = null;
 				Player player2 = null;
-				Player humanPlayer = null;
-				if(first.equals("computer")) {
-					if(!second.equals("computer")) {
-						// first player is computer, second is human
-						humanPlayer = players.get(second);
-						if(humanPlayer != null) {
-							player2 = humanPlayer;
-						} else {
-							player2 = new HumanPlayer(second);
-							players.put(second, player2);
-							humanPlayer = player2;
+
+				// checking if both players are human
+				if(!first.equals("computer") && !second.equals("computer")) {
+					player1 = players.get(first);
+					player2 = players.get(second);
+					if(player1 == null) player1 = new HumanPlayer(first);
+					if(player2 == null) player2 = new HumanPlayer(second);
+				} else {			
+					System.out.println("first: " + first + ", " + "second: " + second);
+					Player humanPlayer = null;
+					if(first.equals("computer")) {
+						if(!second.equals("computer")) {
+							// first player is computer, second is human
+							humanPlayer = players.get(second);
+							if(humanPlayer != null) {
+								player2 = humanPlayer;
+							} else {
+								player2 = new HumanPlayer(second);
+								players.put(second, player2);
+								humanPlayer = player2;
+							}
 						}
+					} else if(!first.equals("computer")) {
+						if(second.equals("computer")) {
+							// first player is a human, second is a computer
+							humanPlayer = players.get(first);
+							if(humanPlayer != null) {
+								player1 = players.get(first);
+							} else {
+								player1 = new HumanPlayer(first);
+								players.put(first, player1);
+								humanPlayer = player1;
+							}
+						}	
+					} else {
+						return new NewGameResponse(-1);
 					}
-				} else if(!first.equals("computer")) {
-					if(second.equals("computer")) {
-						// first player is a human, second is a computer
-						humanPlayer = players.get(first);
-						if(humanPlayer != null) {
-							player1 = players.get(first);
-						} else {
-							player1 = new HumanPlayer(first);
-							players.put(first, player1);
-							humanPlayer = player1;
-						}
-					}	
-				} else {
-					return new NewGameResponse(-1);
-				}
 		
-				float winPercentage = humanPlayer.getStat().getWinPercentage();
-				if(winPercentage <= 30.0) {
-					if(player1 == null) {
-						player1 = players.get("computer_easy");
-					} else if(player2 == null) {
-						player2 = players.get("computer_easy");
-					}
-				} else {
-					if(player1 == null) {
-						player1 = players.get("computer_hard");
-					} else if(player2 == null) {
-						player2 = players.get("computer_hard");
+					float winPercentage = humanPlayer.getStat().getWinPercentage();
+					if(winPercentage <= 30.0f) {
+						if(player1 == null) {
+							player1 = players.get("computer_easy");
+						} else if(player2 == null) {
+							player2 = players.get("computer_easy");
+						}
+					} else {
+						if(player1 == null) {
+							player1 = players.get("computer_hard");
+						} else if(player2 == null) {
+							player2 = players.get("computer_hard");
+						}
 					}
 				}
 
