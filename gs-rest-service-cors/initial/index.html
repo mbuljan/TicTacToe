@@ -21,7 +21,29 @@
 						getStatus();					
 					});
 				}
+				updateStats();
 			});		
+
+			function updateStats() {
+				http.get('http://localhost:8080/stats').then(function(statusResponse) {									
+					scope.stats = statusResponse.data.stats;
+					/*
+					scope.playerStats = "";
+					for(i = 0; i < statusResponse.data.stats.length; i++) {
+						var name = statusResponse.data.stats[i].name;
+						var wins = statusResponse.data.stats[i].wins;
+						var losses = statusResponse.data.stats[i].losses;
+						var draws = statusResponse.data.stats[i].draws;
+						scope.playerStats += "<p>";
+						scope.playerStats += "Player name: " + name + "<br>";	
+						scope.playerStats += "Wins: " + wins + "<br>";
+						scope.playerStats += "Losses: " + losses;
+						scope.playerStats += "Draws: " + draws;
+						scope.playerStats += "</p>";
+					}*/			
+				});	
+				
+			}
 
 			function getStatus() {
 				http.get('http://localhost:8080/status?gameId=' + gameId).then(function(statusResponse) {									
@@ -85,6 +107,11 @@
 					<td><button style="width:75px;height:75px;" onclick="playMove(2, 2)">{{grid22}}</button></td>
   			</tr>
 				</table>
+				
+				<p>PLAYER'S STATS:</p>
+				<p ng-repeat="stat in stats">
+					{{stat.name}} -> wins: {{stat.wins}}, losses: {{stat.losses}}, draws: {{stat.draws}}
+				</p>
 			</div>
 	</body>
 </html>
